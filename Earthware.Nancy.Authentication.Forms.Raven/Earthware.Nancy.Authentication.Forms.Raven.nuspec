@@ -12,5 +12,8 @@
 	<iconUrl>http://nancyfx.org/nancy-nuget.png</iconUrl>
     <projectUrl>https://github.com/Earthware/earthware-nancy-authentication</projectUrl>
     <tags>Earthware Nancy Authentication RavenDb</tags>
+      <dependencies>
+          <dependency id="Earthware.Nancy.Authentication.Forms" />
+      </dependencies>
   </metadata>
 </package>
