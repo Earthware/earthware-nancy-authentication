@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <id>Earthware.Nancy.Authentication.Forms.Raven</id>
+    <version>1.0.0</version>
+    <authors>Earthware Ltd</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>RavenDb IAuthSessionIdStore implementation for Earthware.Nancy.Authentication.Forms package</description>
+    <summary>RavenDb IAuthSessionIdStore implementation for Earthware.Nancy.Authentication.Forms package.</summary>
+    <language>en-GB</language>
+	<copyright>Earthware Ltd</copyright>
+	<iconUrl>http://nancyfx.org/nancy-nuget.png</iconUrl>
+    <projectUrl>https://github.com/Earthware/earthware-nancy-authentication</projectUrl>
+    <tags>Earthware Nancy Authentication RavenDb</tags>
+  </metadata>
+</package>
