@@ -27,6 +27,7 @@
         {
             this.CryptographyConfiguration = cryptographyConfiguration;
             this.RedirectQuerystringKey = DefaultRedirectQuerystringKey;
+            this.AuthSessionIdStore = new InMemoryAuthSessionIdStore();
         }
 
         /// <summary>
