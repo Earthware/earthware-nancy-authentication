@@ -35,7 +35,7 @@
         /// <returns>Nancy response instance</returns>
         public static Response LoginAndRedirect(this INancyModule module, Guid userIdentifier, DateTime? cookieExpiry = null, string fallbackRedirectUrl = "/")
         {
-            return EarthwareFormsAuthentication.UserLoggedInRedirectResponse(module.Context, userIdentifier, cookieExpiry, fallbackRedirectUrl);
+            return FormsAuthentication.UserLoggedInRedirectResponse(module.Context, userIdentifier, cookieExpiry, fallbackRedirectUrl);
         }
 
         /// <summary>
@@ -47,7 +47,7 @@
         /// <returns>Nancy response instance</returns>
         public static Response LoginWithoutRedirect(this INancyModule module, Guid userIdentifier, DateTime? cookieExpiry = null)
         {
-            return EarthwareFormsAuthentication.UserLoggedInResponse(userIdentifier, cookieExpiry);
+            return FormsAuthentication.UserLoggedInResponse(userIdentifier, cookieExpiry);
         }
 
         /// <summary>
@@ -59,8 +59,8 @@
         public static Response Logout(this INancyModule module, string redirectUrl)
         {
             return module.Context.Request.IsAjaxRequest() ?
-               EarthwareFormsAuthentication.LogOutResponse(module.Context) :
-               EarthwareFormsAuthentication.LogOutAndRedirectResponse(module.Context, redirectUrl);
+               FormsAuthentication.LogOutResponse(module.Context) :
+               FormsAuthentication.LogOutAndRedirectResponse(module.Context, redirectUrl);
         }
 
         /// <summary>
@@ -71,7 +71,7 @@
         /// <returns>Nancy response instance</returns>
         public static Response LogoutAndRedirect(this INancyModule module, string redirectUrl)
         {
-            return EarthwareFormsAuthentication.LogOutAndRedirectResponse(module.Context, redirectUrl);
+            return FormsAuthentication.LogOutAndRedirectResponse(module.Context, redirectUrl);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@
         /// <returns>Nancy response instance</returns>
         public static Response LogoutWithoutRedirect(this INancyModule module)
         {
-            return EarthwareFormsAuthentication.LogOutResponse(module.Context);
+            return FormsAuthentication.LogOutResponse(module.Context);
         }
     }
 }

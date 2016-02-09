@@ -3,7 +3,6 @@
     using System;
 
     using global::Nancy;
-    using global::Nancy.Authentication.Forms;
     using global::Nancy.Security;
 
     /// <summary>
