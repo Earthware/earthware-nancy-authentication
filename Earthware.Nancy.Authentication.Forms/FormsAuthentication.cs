@@ -27,21 +27,18 @@
         /// <summary>
         ///     Decrypt and validate an encrypted and signed cookie value
         /// </summary>
-        /// <param name="urlEncodedCookieValue">Encrypted and signed cookie value</param>
+        /// <param name="decodedCookieValue">Encrypted and signed cookie value</param>
         /// <param name="configuration">Current configuration</param>
         /// <returns>Decrypted value, or empty on error or if failed validation</returns>
         public static string DecryptAndValidateAuthenticationCookie(
-            string urlEncodedCookieValue,
+            string decodedCookieValue,
             FormsAuthenticationConfiguration configuration)
         {
-            // TODO - shouldn't this be automatically decoded by nancy cookie when that change is made?
-            var decodedCookie = HttpUtility.UrlDecode(urlEncodedCookieValue);
-
             var hmacStringLength =
                 Base64Helpers.GetBase64Length(configuration.CryptographyConfiguration.HmacProvider.HmacLength);
 
-            var encryptedCookie = decodedCookie.Substring(hmacStringLength);
-            var hmacString = decodedCookie.Substring(0, hmacStringLength);
+            var encryptedCookie = decodedCookieValue.Substring(hmacStringLength);
+            var hmacString = decodedCookieValue.Substring(0, hmacStringLength);
 
             var encryptionProvider = configuration.CryptographyConfiguration.EncryptionProvider;
 
