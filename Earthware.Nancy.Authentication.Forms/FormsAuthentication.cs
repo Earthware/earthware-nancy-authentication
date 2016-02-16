@@ -402,7 +402,7 @@
 
                 if (shouldCopyExistingCookie)
                 {
-                    var formsAuthCookieValue = HttpUtility.UrlDecode(context.Request.Cookies[FormsAuthenticationCookieName]);
+                    var formsAuthCookieValue = context.Request.Cookies[FormsAuthenticationCookieName];
 
                     var expires = DateTime.UtcNow.AddMinutes(configuration.SlidingSessionExpirationMinutes);
 
