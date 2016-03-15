@@ -299,6 +299,11 @@
                 return Guid.Empty;
             }
 
+            if (string.IsNullOrEmpty(context.Request.Cookies[FormsAuthenticationCookieName]))
+            {
+                return Guid.Empty;
+            }
+
             var cookieValue =
                 DecryptAndValidateAuthenticationCookie(
                     context.Request.Cookies[FormsAuthenticationCookieName],
