@@ -90,17 +90,7 @@
             {
                 throw new ArgumentException("The SlidingSessionExpirationMinutes value must be greater than 0", nameof(this.SlidingSessionExpirationMinutes));
             }
-
-            if (string.IsNullOrEmpty(this.LogoutPath))
-            {
-                throw new ArgumentException("You must provide the path to your Logout endpoint in the LogoutPath property.", nameof(this.LogoutPath));
-            }
         }
-
-        /// <summary>
-        ///     Gets or sets the path of the logout endpoint. Needed for sliding expiration.
-        /// </summary>
-        public string LogoutPath { get; set; } = "/logout";
 
         /// <summary>
         ///     Gets or sets the path of the auth cookie

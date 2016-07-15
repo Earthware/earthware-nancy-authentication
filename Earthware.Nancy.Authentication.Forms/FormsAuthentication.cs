@@ -16,6 +16,8 @@
     {
         public const string AuthSessionIdItemKey = "Earthware.Nancy.FormsAuthentication.AuthSessionIdItemKey";
 
+        public const string UserLoggedOutKey = "Earthware.Nancy.FormsAuthentication.UserLoggedOutKey";
+
         // TODO - would prefer not to hold this here, but the redirect response needs it
         private static FormsAuthenticationConfiguration currentConfiguration;
 
@@ -101,6 +103,9 @@
 
             response.WithCookie(authenticationCookie);
 
+            context.Items[UserLoggedOutKey] = new object();
+            context.CurrentUser = null;
+
             if (context.Items.ContainsKey(AuthSessionIdItemKey))
             {
                 currentConfiguration.AuthSessionIdStore.Remove((Guid)context.Items[AuthSessionIdItemKey]);
@@ -121,7 +126,13 @@
 
             response.WithCookie(authenticationCookie);
 
-            currentConfiguration.AuthSessionIdStore.Remove((Guid)context.Items[AuthSessionIdItemKey]);
+            context.Items[UserLoggedOutKey] = new object();
+            context.CurrentUser = null;
+
+            if (context.Items.ContainsKey(AuthSessionIdItemKey))
+            {
+                currentConfiguration.AuthSessionIdStore.Remove((Guid)context.Items[AuthSessionIdItemKey]);
+            }
 
             return response;
         }
@@ -153,7 +164,7 @@
                 redirectUrl = "/";
             }
 
-            string redirectQuerystringKey = GetRedirectQuerystringKey(currentConfiguration);
+            var redirectQuerystringKey = GetRedirectQuerystringKey(currentConfiguration);
 
             if (context.Request.Query[redirectQuerystringKey].HasValue)
             {
@@ -196,22 +207,18 @@
         /// <param name="cookieExpiry">Optional expiry date for the cookie (for 'Remember me')</param>
         /// <param name="configuration">Current configuration</param>
         /// <returns>Nancy cookie instance</returns>
-        private static INancyCookie BuildCookie(
-            Guid userIdentifier,
-            FormsAuthenticationConfiguration configuration)
+        private static INancyCookie BuildCookie(Guid userIdentifier, FormsAuthenticationConfiguration configuration)
         {
             var expiryTime = DateTime.UtcNow.AddMinutes(configuration.SlidingSessionExpirationMinutes);
 
-            var authSessionId = configuration.AuthSessionIdStore.Add(
-                userIdentifier,
-                expiryTime);
+            var authSessionId = configuration.AuthSessionIdStore.Add(userIdentifier, expiryTime);
 
             var cookieContents = EncryptAndSignCookie(authSessionId.ToString(), configuration);
 
             var cookie = new NancyCookie(FormsAuthenticationCookieName, cookieContents, true, configuration.RequiresSSL)
-            {
-                Expires = expiryTime
-            };
+                             {
+                                 Expires = expiryTime
+                             };
 
             if (!string.IsNullOrEmpty(configuration.Domain))
             {
@@ -234,15 +241,9 @@
         private static INancyCookie BuildLogoutCookie(FormsAuthenticationConfiguration configuration)
         {
             var cookie = new NancyCookie(FormsAuthenticationCookieName, string.Empty, true, configuration.RequiresSSL)
-            {
-                Expires
-                                     =
-                                     DateTime
-                                     .Now
-                                     .AddDays
-                                     (
-                                         -1)
-            };
+                             {
+                                 Expires = DateTime.Now.AddDays(-1)
+                             };
 
             if (!string.IsNullOrEmpty(configuration.Domain))
             {
@@ -338,16 +339,16 @@
             }
 
             return context =>
-            {
-                var userGuid = GetAuthenticatedUserFromCookie(context, configuration);
-
-                if (userGuid != Guid.Empty)
                 {
-                    context.CurrentUser = configuration.UserMapper.GetUserFromIdentifier(userGuid, context);
-                }
+                    var userGuid = GetAuthenticatedUserFromCookie(context, configuration);
 
-                return null;
-            };
+                    if (userGuid != Guid.Empty)
+                    {
+                        context.CurrentUser = configuration.UserMapper.GetUserFromIdentifier(userGuid, context);
+                    }
+
+                    return null;
+                };
         }
 
         /// <summary>
@@ -380,16 +381,16 @@
         private static Action<NancyContext> GetRedirectToLoginHook(FormsAuthenticationConfiguration configuration)
         {
             return context =>
-            {
-                if (context.Response.StatusCode == HttpStatusCode.Unauthorized)
                 {
-                    var redirectQuerystringKey = GetRedirectQuerystringKey(configuration);
+                    if (context.Response.StatusCode == HttpStatusCode.Unauthorized)
+                    {
+                        var redirectQuerystringKey = GetRedirectQuerystringKey(configuration);
 
-                    context.Response =
-                        context.GetRedirect(
-                            $"{configuration.RedirectUrl}?{redirectQuerystringKey}={context.ToFullPath("~" + context.Request.Path + HttpUtility.UrlEncode(context.Request.Url.Query))}");
-                }
-            };
+                        context.Response =
+                            context.GetRedirect(
+                                $"{configuration.RedirectUrl}?{redirectQuerystringKey}={context.ToFullPath("~" + context.Request.Path + HttpUtility.UrlEncode(context.Request.Url.Query))}");
+                    }
+                };
         }
 
         private static Action<NancyContext> GetUpdateSessionCookieHook(FormsAuthenticationConfiguration configuration)
@@ -400,30 +401,32 @@
             }
 
             return context =>
-            {
-                var shouldCopyExistingCookie = context.Request.Cookies.ContainsKey(FormsAuthenticationCookieName)
-                                               && !context.Request.Path.Contains(configuration.LogoutPath)
-                                               && context.CurrentUser != null;
-
-                if (shouldCopyExistingCookie)
                 {
-                    var formsAuthCookieValue = context.Request.Cookies[FormsAuthenticationCookieName];
+                    var userHasLoggedOut = context.Items.ContainsKey(UserLoggedOutKey);
 
-                    var expires = DateTime.UtcNow.AddMinutes(configuration.SlidingSessionExpirationMinutes);
+                    var shouldCopyExistingCookie = context.Request.Cookies.ContainsKey(FormsAuthenticationCookieName)
+                                                   && !userHasLoggedOut 
+                                                   && context.CurrentUser != null;
 
-                    var newCookie = new NancyCookie(
-                        FormsAuthenticationCookieName,
-                        formsAuthCookieValue,
-                        true,
-                        configuration.RequiresSSL,
-                        expires);
+                    if (shouldCopyExistingCookie)
+                    {
+                        var formsAuthCookieValue = context.Request.Cookies[FormsAuthenticationCookieName];
 
-                    context.Response.WithCookie(newCookie);
+                        var expires = DateTime.UtcNow.AddMinutes(configuration.SlidingSessionExpirationMinutes);
 
-                    // Also update the cache entry to keep consistent
-                    configuration.AuthSessionIdStore.Extend((Guid)context.Items[AuthSessionIdItemKey], expires);
-                }
-            };
+                        var newCookie = new NancyCookie(
+                            FormsAuthenticationCookieName,
+                            formsAuthCookieValue,
+                            true,
+                            configuration.RequiresSSL,
+                            expires);
+
+                        context.Response.WithCookie(newCookie);
+
+                        // Also update the cache entry to keep consistent
+                        configuration.AuthSessionIdStore.Extend((Guid)context.Items[AuthSessionIdItemKey], expires);
+                    }
+                };
         }
     }
 }
