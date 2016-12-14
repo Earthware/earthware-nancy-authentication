@@ -300,7 +300,7 @@
                 return Guid.Empty;
             }
 
-            if (string.IsNullOrEmpty(context.Request.Cookies[FormsAuthenticationCookieName]))
+            if (string.IsNullOrWhiteSpace(context.Request.Cookies[FormsAuthenticationCookieName]))
             {
                 return Guid.Empty;
             }
