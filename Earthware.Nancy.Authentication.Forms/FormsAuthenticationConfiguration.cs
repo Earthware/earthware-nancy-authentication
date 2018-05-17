@@ -122,5 +122,11 @@
         ///     Gets or sets the username/identifier mapper
         /// </summary>
         public IUserMapper UserMapper { get; set; }
+
+        /// <summary>
+        ///  Gets or sets whether or not the cookie should be a session cookie by having no expiry
+        ///  this will override the SlidingSessionExpirationMinutes setting
+        /// </summary>
+        public bool NoExpiry { get; set; } = false;
     }
 }

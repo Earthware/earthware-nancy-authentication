@@ -217,7 +217,7 @@
 
             var cookie = new NancyCookie(FormsAuthenticationCookieName, cookieContents, true, configuration.RequiresSSL)
                              {
-                                 Expires = expiryTime
+                                 Expires = GetExpiryTime(expiryTime, configuration) 
                              };
 
             if (!string.IsNullOrEmpty(configuration.Domain))
@@ -393,6 +393,18 @@
                 };
         }
 
+        private static DateTime? GetExpiryTime(DateTime? expiryTime, FormsAuthenticationConfiguration configuration)
+        {
+            if (configuration.NoExpiry)
+            {
+                return null;
+            }
+            else
+            {
+                return expiryTime;
+            }
+        }
+
         private static Action<NancyContext> GetUpdateSessionCookieHook(FormsAuthenticationConfiguration configuration)
         {
             if (configuration == null)
@@ -419,7 +431,7 @@
                             formsAuthCookieValue,
                             true,
                             configuration.RequiresSSL,
-                            expires);
+                            GetExpiryTime(expires, configuration));
 
                         context.Response.WithCookie(newCookie);
 
