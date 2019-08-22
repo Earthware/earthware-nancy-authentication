@@ -28,3 +28,4 @@ Thumbs.db
 Gemfile.lock
 .vs/
 packages/
+*.nupkg
