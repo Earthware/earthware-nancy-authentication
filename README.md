@@ -1,5 +1,9 @@
 # earthware-nancy-authentication
 
+Extensions to the standard forms authentication provider for Nancy.
+
+Extends the standard Nancy.Authentication.Forms library with sliding session expiry and randomly generated auth session ids.
+
 ## Changes
 
 ### 1.0.18 Nuget Release
